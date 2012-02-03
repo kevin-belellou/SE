@@ -17,7 +17,6 @@ void createBinaryFile(const std::string& input)
         int tmp = 0;
         ifile >> tmp;
         while(!ifile.eof()) {
-            std::cout << tmp << std::endl;
             //Use a space to not have a HUGE number
             //(but rather a number list)
             ofile.write((char*)&tmp, sizeof(int));
