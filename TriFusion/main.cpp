@@ -51,15 +51,13 @@ int main(int argc, char** argv)
     std::ofstream ofile(output.c_str(), std::ios::binary);
     std::ifstream ifile(input.c_str(), std::ios::binary);
 
-    std::vector<int> value;
     //Read and put each number into value vector
     if(ifile) {
         //Set at the beginning of the file
         ifile.seekg(0);
         int tmp;
-        while(!ifile.eof()) {
-            ifile.read((char*)&tmp, sizeof(int));
-            std::cout << tmp << std::endl;
+        while(ifile.read((char*)&tmp, sizeof(int))) {
+            //std::cout << tmp << std::endl;
         }
         ifile.close();
     }
