@@ -21,6 +21,7 @@ void createBinaryFile(const std::string& input)
             //Use a space to not have a HUGE number
             //(but rather a number list)
             ofile.write((char*)&tmp, sizeof(int));
+            //Read next value
             ifile >> tmp;
         }
         ofile.close();
