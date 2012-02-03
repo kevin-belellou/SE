@@ -15,13 +15,13 @@ void createBinaryFile(const std::string& input)
     //If we can't read the file, we won't convert anything
     if(ifile) {
         int tmp = 0;
+        ifile >> tmp;
         while(!ifile.eof()) {
+            std::cout << tmp << std::endl;
+            //Use a space to not have a HUGE number
+            //(but rather a number list)
+            ofile.write((char*)&tmp, sizeof(int));
             ifile >> tmp;
-            if(ofile) {
-                //Use a space to not have a HUGE number
-                //(but rather a number list)
-                ofile.write((char*)&tmp, sizeof(int));
-            }
         }
         ofile.close();
         ifile.close();
