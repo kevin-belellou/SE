@@ -51,16 +51,24 @@ int main(int argc, char** argv)
     std::ofstream ofile(output.c_str(), std::ios::binary);
     std::ifstream ifile(input.c_str(), std::ios::binary);
 
+
+    unsigned int min = 0, max = 0;
+    //Read
     //Read and put each number into value vector
     if(ifile) {
-        //Set at the beginning of the file
-        ifile.seekg(0);
+        //Go to the end, tell us the size
+        ifile.seekg(0, std::ios_base::end);
+        max = ifile.tellg();
+        //And return at the beginning of the file
+        ifile.seekg(0, std::ios::beg);
         int tmp;
         while(ifile.read((char*)&tmp, sizeof(int))) {
-            //std::cout << tmp << std::endl;
+            //Do some stuff with data
         }
-        ifile.close();
     }
 
+
+    ofile.close();
+    ifile.close();
     return 0;
 }
