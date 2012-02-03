@@ -29,40 +29,40 @@ void createBinaryFile(const std::string& input)
     }
 }
 
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
-	std::string input;
-	std::string output;
-	//Check argument
-	if(argc == 2) {
-		input = output = argv[1];
-	} else {
-		std::cerr << "Wrong number of argument" << std::endl;
-		return -1;
-	}
-	//Convert the plain text 
-	createBinaryFile(argv[1]);
+    std::string input;
+    std::string output;
+    //Check argument
+    if(argc == 2) {
+        input = output = argv[1];
+    } else {
+        std::cerr << "Wrong number of argument" << std::endl;
+        return -1;
+    }
+    //Convert the plain text
+    createBinaryFile(argv[1]);
 
-	//Create filename
-	output += "_sorted.bin";
-	input += "_random.bin";
+    //Create filename
+    output += "_sorted.bin";
+    input += "_random.bin";
 
-	//Open file
-	std::ofstream ofile(output.c_str(), std::ios::binary);
-	std::ifstream ifile(input.c_str(), std::ios::binary);
+    //Open file
+    std::ofstream ofile(output.c_str(), std::ios::binary);
+    std::ifstream ifile(input.c_str(), std::ios::binary);
 
-	std::vector<int> value;
-	//Read and put each number into value vector
-	if(ifile) {
-		//Set at the beginning of the file
-		ifile.seekg(0);
-		char* tmp;
-		while(!ifile.eof()) {
-			ifile.read(tmp, sizeof(int));
-			std::cout << tmp << std::endl;
-		}
-		ifile.close();
-	}
+    std::vector<int> value;
+    //Read and put each number into value vector
+    if(ifile) {
+        //Set at the beginning of the file
+        ifile.seekg(0);
+        int tmp;
+        while(!ifile.eof()) {
+            ifile.read((char*)&tmp, sizeof(int));
+            std::cout << tmp << std::endl;
+        }
+        ifile.close();
+    }
 
-	return 0;
+    return 0;
 }
