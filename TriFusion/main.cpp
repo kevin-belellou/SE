@@ -3,6 +3,11 @@
 #include <fstream>
 #include <vector>
 
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 void createBinaryFile(const std::string& input)
 {
     //Open file
@@ -66,6 +71,21 @@ int main(int argc, char** argv)
         }
     }
 
+	pid_t son;
+	switch(son = fork()) {
+    case -1:
+        //Seems something went wrong
+        std::cerr << "Fork failed" << std::endl;
+        return(-1);
+    case 0:
+        //Son's code
+        std::cout << "Fork success: " << getpid() << std::endl;
+		break;
+    default:
+        //I am your father
+        wait(NULL);
+        std::cout << "Son fork ended" << std::endl;
+    }
 
     ofile.close();
     ifile.close();
