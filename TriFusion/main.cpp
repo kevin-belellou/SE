@@ -54,7 +54,6 @@ int main(int argc, char** argv)
 
     unsigned int min = 0, max = 0;
     //Read
-    //Read and put each number into value vector
     if(ifile) {
         //Go to the end, tell us the size
         ifile.seekg(0, std::ios_base::end);
