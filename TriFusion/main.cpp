@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+int callFork(int min, int max);
+
 void createBinaryFile(const std::string& input)
 {
     //Open file
@@ -33,6 +35,7 @@ void createBinaryFile(const std::string& input)
 
     }
 }
+
 
 int main(int argc, char** argv)
 {
@@ -71,23 +74,32 @@ int main(int argc, char** argv)
         }
     }
 
-	pid_t son;
-	switch(son = fork()) {
-    case -1:
-        //Seems something went wrong
-        std::cerr << "Fork failed" << std::endl;
-        return(-1);
-    case 0:
-        //Son's code
-        std::cout << "Fork success: " << getpid() << std::endl;
-		break;
-    default:
-        //I am your father
-        wait(NULL);
-        std::cout << "Son fork ended" << std::endl;
-    }
-
+	//First part of the merging sort
+	callFork(min, max);
+    
     ofile.close();
     ifile.close();
     return 0;
+}
+
+int callFork(int min, int max) {
+    pid_t son = fork();
+    if(son == -1) {
+        //Seems something went wrong
+        std::cerr << "Fork failed" << std::endl;
+        return(-1);
+    } else if(son == 0) {
+        //Son's code
+        std::cout << "Fork success for value: " << min << "/" << max << " (" << getpid() << ")" << std::endl;
+		if(min >= max) {
+		} else {
+			callFork(min, max/2);
+			callFork(max/2, max);
+		}
+        return 0;
+    } else {
+        wait(NULL);
+        std::cout << "Son fork ended" << son << std::endl;
+    }
+	return 0;
 }
