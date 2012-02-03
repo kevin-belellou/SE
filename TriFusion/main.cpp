@@ -94,7 +94,6 @@ int callFork(int min, int max) {
 		if(min >= max) {
 		} else {
 			callFork(min, max/2);
-			callFork(max/2, max);
 		}
         return 0;
     } else {
