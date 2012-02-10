@@ -9,9 +9,9 @@
 
 int main(int argc, char* argv[])
 {
-	pid_t polo = getpid();
-	pid_t sauvPolo;
-	printf("Je suis le processus %d\n", polo);
+	pid_t pid_courant = getpid();
+	pid_t pid_pere;
+	printf("Je suis le processus %d\n", pid_courant);
 
 	int nbTab = 3;
 	int nbFils = 0;
@@ -19,36 +19,38 @@ int main(int argc, char* argv[])
 	{
 		for (int i = 0; i < 2; i++)
 		{
-			sauvPolo = polo;
-			printf("%d :\n", polo);
+			pid_pere = pid_courant;
+			printf("%d :\n", pid_courant);
 			switch(fork())
 			{
 				case 0:
-					polo = getpid();
-					printf("%d cree %d \n", sauvPolo, polo);
-					goto boucle;
+					pid_courant = getpid();
+					printf("%d cree %d \n", pid_pere, pid_courant);
+					break;
 				default:
 					nbFils++;
 					break;
 				
 			}
+			if (getpid() != pid_pere)
+				break;
 		}
-		boucle: nbTab--;
+		nbTab--;
 	}
 
 	printf("%d : OK\n", getpid());
 	
-	if (sauvPolo == polo)
+	if (pid_pere == pid_courant)
 	{
-		printf("%d : j'attends\n", polo);
+		printf("%d : j'attends\n", pid_courant);
 
 		//pid_t retWait = 0;
 		while (wait(NULL) != -1)
 		{
-			printf("%d : un process s'est fini\n", polo);
+			printf("%d : un process s'est fini\n", pid_courant);
 		}
 
-		printf("%d : attente finie\n", polo);
+		printf("%d : attente finie\n", pid_courant);
 	}
 	
 	return 0;
