@@ -112,5 +112,6 @@ int callFork(int min, int max) {
 int doSonFork(int min, int max)
 {
      //Son's code
+	return 0;
 
 }
