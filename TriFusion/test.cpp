@@ -13,19 +13,37 @@ int main(int argc, char* argv[])
 	pid_t pid_pere;
 	printf("Je suis le processus %d\n", pid_courant);
 
-	int nbTab = 3;
+	//int nbTab = 3;
 	int nbFils = 0;
-	while (nbTab > 1 && nbFils < 2)
+
+	int min = 0, max = 3;
+	int minFils, maxFils;
+
+	while (min < max && nbFils < 2)
 	{
 		for (int i = 1; i <= 2; i++)
 		{
 			pid_pere = pid_courant;
 			// printf("%d :\n", pid_courant);
+
+			if (i == 1)
+			{
+				minFils = min;
+				maxFils = (min + max) / 2;
+			}
+			else
+			{
+				minFils = ((min + max) / 2) + 1;
+				maxFils = max;
+			}
+
 			switch(fork())
 			{
 				case 0: // Fils
 					pid_courant = getpid();
-					printf("%d cree %d (%d/2)\n", pid_pere, pid_courant, i);
+					min = minFils;
+					max = maxFils;
+					printf("%d cree %d (%d/2); valeurs : %d - %d\n", pid_pere, pid_courant, i, min, max);
 					break;
 				default: // Pere
 					nbFils++;
@@ -35,7 +53,7 @@ int main(int argc, char* argv[])
 			if (getpid() != pid_pere) // Si je suis le 1er fils
 				break;
 		}
-		nbTab--;
+		//nbTab--;
 	}
 
 	// printf("%d : OK\n", getpid());
