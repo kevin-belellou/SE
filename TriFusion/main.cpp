@@ -9,7 +9,6 @@
 
 int callFork(int min, int max);
 
-std::ifstream readedFile;
 void createBinaryFile(const std::string& input)
 {
      //Open file
@@ -36,6 +35,26 @@ void createBinaryFile(const std::string& input)
      }
 }
 
+void createAnsiFile(const std::string& input)
+{
+     //Open file
+     std::string output = input;
+	output.resize(output.size()-4); //remove the .bin
+
+     std::ofstream ofile(output.c_str(), std::ios::binary);
+     std::ifstream ifile(input.c_str(), std::ios::binary);
+
+     if(ifile) {
+          ifile.seekg(0, std::ios::beg);
+          int tmp;
+          while(ifile.read((char*)&tmp, sizeof(int))) {
+               ofile << tmp << " ";
+          }
+          ofile.close();
+          ifile.close();
+
+     }
+}
 
 int main(int argc, char** argv)
 {
@@ -75,16 +94,22 @@ int main(int argc, char** argv)
           }
      }
 
+     pid_t originalPID = getpid();
+
      //First part of the merging sort
-     readedFile.open(input.c_str());
+     std::ifstream readedFile(input.c_str());
      callFork(min, max);
-     readedFile.close();
 
-     ofile.close();
-     ifile.close();
+     //Now only close buffer and all if I'm the original one
+     if(originalPID == getpid()) {
+          readedFile.close();
 
-     //So now, file is now sorted and writted in _sorted.bin
-     //Maybe write it to a readable file ?
+          ofile.close();
+          ifile.close();
+
+          //So now, file is now sorted and writted in _sorted.bin
+          createAnsiFile(output);
+     }
      return 0;
 }
 
@@ -128,20 +153,19 @@ int callFork(int min, int max)
           }
      }
 
-	//If i'm the father
-     if (pid_pere == pid_courant) { 
+     //If i'm the father
+     if (pid_pere == pid_courant) {
           printf("%d : Waiting\n", pid_courant);
 
-		//Wait until son finished
+          //Wait until son finished
           pid_t process;
-          for (int j = 1; j <= 2; j++) { 
+          for (int j = 1; j <= 2; j++) {
                process = wait(NULL);
                printf("%d : %d ended (%d/2)\n", pid_courant, process, j);
           }
 
           printf("%d : Wait end\n", pid_courant);
-          //
      }
 
-	return 0;
+     return 0;
 }
