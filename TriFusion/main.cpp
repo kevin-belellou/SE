@@ -82,36 +82,64 @@ int main(int argc, char** argv)
 
      ofile.close();
      ifile.close();
+
+     //So now, file is now sorted and writted in _sorted.bin
+     //Maybe write it to a readable file ?
      return 0;
 }
 
-int callFork(int min, int max) {
-     pid_t son = fork();
-	switch(son) {
-	case 0:
-          std::cout << "Fork success for value: " << min << "/" << max << " (" << getpid() << ")" << std::endl;
-          if(min >= max) {
-               int val = 0;
-               readedFile.seekg(max * sizeof(int));
-               readedFile.read((char*)&val, sizeof(int));
-               std::cout << "So value is: " << val << std::endl;
-               return val;
-          } else {
-               callFork(min, max/2);
-          	wait(NULL);
-          }
-          return 0;
-     default:
-          callFork(max/2+1, max);
-          wait(NULL);
-          std::cout << "Son fork ended : " << son << std::endl;
-     }
-     return 0;
-}
-
-int doSonFork(int min, int max)
+int callFork(int min, int max)
 {
-     //Son's code
-	return 0;
+     pid_t pid_courant = getpid();
+     pid_t pid_pere;
+     printf("Je suis le processus %d\n", pid_courant);
 
+     int nbFils = 0;
+     int minFils, maxFils;
+
+     while (min < max && nbFils < 2) {
+          for (int i = 1; i <= 2; i++) {
+               pid_pere = pid_courant;
+
+               // Determination des intervalles pour chaque fils
+               if (i == 1) {
+                    minFils = min;
+                    maxFils = (min + max) / 2;
+               } else {
+                    minFils = ((min + max) / 2) + 1;
+                    maxFils = max;
+               }
+
+               // Creation des fils
+               switch(fork()) {
+               case 0: // Fils
+                    // Mise a jour des valeurs
+                    pid_courant = getpid();
+                    min = minFils;
+                    max = maxFils;
+                    printf("%d cree %d (%d/2); valeurs : %d - %d\n", pid_pere, pid_courant, i, min, max);
+                    break;
+               default: // Pere
+                    nbFils++;
+                    break;
+               }
+               if (getpid() != pid_pere) // Si je suis le 1er fils
+                    break;
+          }
+     }
+
+     if (pid_pere == pid_courant) { // Si je suis un pere...
+          printf("%d : j'attends\n", pid_courant);
+
+          pid_t process;
+          for (int j = 1; j <= 2; j++) { // ...J'attends que mes fils se terminent
+               process = wait(NULL);
+               printf("%d : le process %d s'est fini (%d/2)\n", pid_courant, process, j);
+          }
+
+          printf("%d : attente finie\n", pid_courant);
+          //
+     }
+
+	return 0;
 }
