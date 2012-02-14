@@ -117,7 +117,7 @@ int callFork(int min, int max)
                     pid_courant = getpid();
                     min = minFils;
                     max = maxFils;
-                    printf("%d cree %d (%d/2); valeurs : %d - %d\n", pid_pere, pid_courant, i, min, max);
+                    printf("%d Created %d (%d/2); Interval : %d - %d\n", pid_pere, pid_courant, i, min, max);
                     break;
                default: // Pere
                     nbFils++;
@@ -128,16 +128,18 @@ int callFork(int min, int max)
           }
      }
 
-     if (pid_pere == pid_courant) { // Si je suis un pere...
-          printf("%d : j'attends\n", pid_courant);
+	//If i'm the father
+     if (pid_pere == pid_courant) { 
+          printf("%d : Waiting\n", pid_courant);
 
+		//Wait until son finished
           pid_t process;
-          for (int j = 1; j <= 2; j++) { // ...J'attends que mes fils se terminent
+          for (int j = 1; j <= 2; j++) { 
                process = wait(NULL);
-               printf("%d : le process %d s'est fini (%d/2)\n", pid_courant, process, j);
+               printf("%d : %d ended (%d/2)\n", pid_courant, process, j);
           }
 
-          printf("%d : attente finie\n", pid_courant);
+          printf("%d : Wait end\n", pid_courant);
           //
      }
 
