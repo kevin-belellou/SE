@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int callFork(unsigned int min, unsigned int max);
+int callFork(unsigned int min, unsigned int max, std::ifstream&);
 
 void createBinaryFile(const std::string& input)
 {
@@ -84,12 +84,11 @@ int main(int argc, char** argv)
      if(ifile) {
           // Go to the end, tell us the size
           ifile.seekg(0, std::ios_base::end);
-          max = ifile.tellg() / 4;
-	printf("max = %d", max);
+          max = (ifile.tellg() / sizeof(int)) - 1;
           // And return at the beginning of the file
           ifile.seekg(0, std::ios::beg);
           int tmp;
-          std::cout << "Values are: " << std::endl;
+          std::cout << "The " << max + 1 << " values are: " << std::endl;
           while(ifile.read((char*)&tmp, sizeof(int))) {
                std::cout << tmp << std::endl;
           }
@@ -99,7 +98,7 @@ int main(int argc, char** argv)
 
      // First part of the merging sort
      std::ifstream readedFile(input.c_str());
-     callFork(min, max);
+     callFork(min, max, readedFile);
 
      // Now only close buffer and all if I'm the original one
      if(originalPID == getpid()) {
@@ -114,7 +113,7 @@ int main(int argc, char** argv)
      return 0;
 }
 
-int callFork(unsigned int min, unsigned int max)
+int callFork(unsigned int min, unsigned int max, std::ifstream& readedFile)
 {
      pid_t pid_courant = getpid();
      pid_t pid_pere;
@@ -159,7 +158,7 @@ int callFork(unsigned int min, unsigned int max)
      if (pid_pere == pid_courant) {
           printf("%d : Waiting\n", pid_courant);
 
-          // Wait until son finished
+          // Wait until sons finished
           pid_t process;
           for (int j = 1; j <= 2; j++) {
                process = wait(NULL);
@@ -167,6 +166,19 @@ int callFork(unsigned int min, unsigned int max)
           }
 
           printf("%d : Wait end\n", pid_courant);
+
+          // Sorting
+          int tmp;
+          printf("\n\n\n%d interval %d - %d\n", pid_courant, min, max);
+          printf("1st son's interval\n");
+          for (unsigned int k = min * sizeof(int); k <= max * sizeof(int); k += sizeof(int))
+          {
+               if (k == (((min + max) / 2) + 1) * sizeof(int))
+                    printf("2ns son's interval\n");
+               readedFile.seekg(k, std::ios::beg);
+               readedFile.read((char*)&tmp, sizeof(int));
+               printf("----------> %d\n", tmp);
+          }
      }
 
      return 0;
