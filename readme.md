@@ -1,7 +1,7 @@
 # Syst&egrave;me d'exploitation #
 
 Ce d&eacute;p&ocirc;t regroupe les TPs du module de Syst&egrave;me d'exploitation, Licence 3 Info Pau, 2011/2012  
-Dirig&eacute; par Louis Schnellbach et K&eacute;vin B&eacut;lellou
+Dirig&eacute; par Louis Schnellbach et K&eacute;vin B&eacute;lellou
 
 ## 1er projet : TriFusion ##
 
