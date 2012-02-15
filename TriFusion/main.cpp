@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int callFork(int min, int max);
+int callFork(unsigned int min, unsigned int max);
 
 void createBinaryFile(const std::string& input)
 {
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
           //And return at the beginning of the file
           ifile.seekg(0, std::ios::beg);
           int tmp;
-          std::cout << "Value are: " << std::endl;
+          std::cout << "Values are: " << std::endl;
           while(ifile.read((char*)&tmp, sizeof(int))) {
                std::cout << tmp << std::endl;
           }
@@ -113,14 +113,14 @@ int main(int argc, char** argv)
      return 0;
 }
 
-int callFork(int min, int max)
+int callFork(unsigned int min, unsigned int max)
 {
      pid_t pid_courant = getpid();
      pid_t pid_pere;
      printf("Je suis le processus %d\n", pid_courant);
 
      int nbFils = 0;
-     int minFils, maxFils;
+     unsigned int minFils, maxFils;
 
      while (min < max && nbFils < 2) {
           for (int i = 1; i <= 2; i++) {
