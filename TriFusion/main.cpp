@@ -84,7 +84,8 @@ int main(int argc, char** argv)
      if(ifile) {
           // Go to the end, tell us the size
           ifile.seekg(0, std::ios_base::end);
-          max = ifile.tellg();
+          max = ifile.tellg() / 4;
+	printf("max = %d", max);
           // And return at the beginning of the file
           ifile.seekg(0, std::ios::beg);
           int tmp;
@@ -142,6 +143,7 @@ int callFork(unsigned int min, unsigned int max)
                     pid_courant = getpid();
                     min = minFils;
                     max = maxFils;
+		    nbFils = 0;
                     printf("%d Created %d (%d/2); Interval : %d - %d\n", pid_pere, pid_courant, i, min, max);
                     break;
                default: // Father's code
