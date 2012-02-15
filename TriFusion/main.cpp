@@ -143,7 +143,7 @@ int callFork(unsigned int min, unsigned int max)
                     pid_courant = getpid();
                     min = minFils;
                     max = maxFils;
-		    nbFils = 0;
+		          nbFils = 0;
                     printf("%d Created %d (%d/2); Interval : %d - %d\n", pid_pere, pid_courant, i, min, max);
                     break;
                default: // Father's code

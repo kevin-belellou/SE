@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
+<html xml:lang="fr-FR" xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head profile="http://dublincore.org/documents/dcq-html/">
+
+
+  <title>TP SE 1 - Tri fusion multi-processus</title><link href="TP_SE_1_fichiers/bjstyle1.css" rel="stylesheet" type="text/css">
+  <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="DC.date" content="2004-09-25T11:48:15">
+  <meta name="DC.language" content="fr-FR">
+  <link href="TP_SE_1_fichiers/htmlize_style.css" rel="stylesheet" type="text/css"></head><body style="direction: ltr;">
+
+<h1>TP SE 1 - Tri fusion multi-processus</h1>
+
+<p class="author">Wilfrid Lefer</p>
+
+<h2>Description du travail</h2>
+Le tri fusion a comme principalement avantage de pouvoir être exécuté <em>out-of-core</em>,
+ autrement dit hors mémoire (sous-entendu centrale), ce qui permet de 
+l'utiliser pour de très gros fichiers, en particulier quand ceux-ci ne 
+tiennent pas en mémoire centrale.<br>
+C'est un tri qui ne trie pas à proprement parler, par échange de valeurs
+ comme la plupart des autres tris, mais qui se contente d'appliquer le 
+principe du <em>divide-and-conquer</em> ou encore du diviser pour 
+régner. Le principe est le suivant : si je ne sais pas comment trier un 
+ensemble de N valeurs, alors je partage cet ensemble en 2 parties à peu 
+près égales, l'idée étant que j'y arriverai peut-être avec des ensembles
+ de valeurs plus petits. Et cette méthode pousse ce raisonnement à 
+l'extrême, en considérant qu'on sait uniquement trier un ensemble d'une 
+seule valeur.<br>
+Par contre, si on dispose de 2 ensembles de valeurs triées, on est 
+capable de construire un seul ensemble de toutes les valeurs réunies qui
+ soit trié. Pour ce faire on compare les têtes de listes afin de 
+déterminer la valeur la plus petite (dans un tri croissant), on déplace 
+cette valeur dans la nouvelle liste. Puis on répète l'opération jusqu'à 
+épuisement d'une liste. Il reste alors à recopier la fin de l'autre 
+liste à la fin de la nouvelle liste.<br>
+L'algorithme se programme naturellement de manière récursive mais vous 
+allez en écrire une implémentation multi-processus. Concrétement le 
+programme admettra comme seul paramètre un nom de fichier sans 
+extension, disons <em>toto</em>. Un fichier binaire de nom <em>toto_random.bin</em>
+ contiendra un nombre arbitraire d'entiers simple précision qui devront 
+être triés, le résultat devant être écrit dans un fichier de nom <em>toto_sorted.bin</em>.<br>
+Ensuite si un processus est chargé de trier une partie des valeurs du 
+fichier de départ, délimitée par des indices min et max avec min &lt; 
+max, il crée 2 processus et charge chacun d'eux de trier la moitié des 
+valeurs, puis il interclasse les valeurs selon un mode <em>streaming</em>, c'est-à-dire qu'il ne stocke en mémoire centrale que 2 valeurs au plus à la fois.<br>
+Afin de vous aider à mettre au point le programme, vous écrirez un petit
+ programme qui lit un fichier texte contenant des valeurs entières et 
+crée un fichier binaire avec les mêmes valeurs et vice-versa.<br>
+Vous avez le choix quant au nombre de fichiers et de programmes différents à écrire afin de créer cette application.<br>
+Votre programme devra tracer son exécution afin que l'on se rende compte
+ de l'enchaînement des opérations réalisées par les différents 
+processus.<br>
+Travail en binôme impérativement.
+
+<h2>Eléments d'appréciation du travail</h2>
+Les langages de programmation autorisés sont C et C++. Utiliser 
+imérativement les extensions .h, .c et .cxx (en minuscules). Programmer 
+de façon lisible, parfaitement indentée (utilisez emacs, il fait ça pour
+ vous !), avec des commentaires sans accents et une compilation sans 
+warnings (je compile les programmes avec <em>g++ -Wall</em> !). 
+Programme qui ne compile pas =&gt; 0. Programme qui plante =&gt; 5 au 
+maximum. Et évidemment ce serait quand même bien que le programme donne 
+le bon résultat !<br>
+
+<h2>Mode de rendu</h2>
+Les étudiants Eric Adam et Julien Robert adresseront une archive, de nom <em>AdamRobert.{tar,zip}</em>, contenant leurs fichiers sources (.h .c .cxx) et UNIQUEMENT les fichiers sources, à <a href="mailto:lefer@univ-pau.fr">lefer@univ-pau.fr</a>, avant vendredi 17 février 2012 à midi, date de l'email faisant foi.
+
+</body></html>
