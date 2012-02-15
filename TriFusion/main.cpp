@@ -93,7 +93,7 @@ int main(int argc, char** argv)
           int tmp;
           std::cout << "The " << max + 1 << " values are: " << std::endl;
           while(ifile.read((char*)&tmp, sizeof(int))) {
-               std::cout << tmp << std::endl;
+               ofile.write((char*)&tmp, sizeof(int));
           }
      }
 
