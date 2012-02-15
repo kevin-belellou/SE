@@ -11,22 +11,23 @@ int callFork(unsigned int min, unsigned int max);
 
 void createBinaryFile(const std::string& input)
 {
-     // Open file
+     //Open file
      std::string output = input + "_random.bin";
 
      std::ofstream ofile(output.c_str(), std::ios::binary);
      std::ifstream ifile(input.c_str(), std::ios::binary);
-
-     // Read and put each number into value vector
-     // If we can't read the file, we won't convert anything
+	
+	//If file is open
      if(ifile) {
+		//Go to the beginning of the file
+          ifile.seekg(0, std::ios::beg);
           int tmp = 0;
+		//Read first value
           ifile >> tmp;
           while(!ifile.eof()) {
-               // Use a space to not have a HUGE number
-               // (but rather a number list)
+			//Write in binary
                ofile.write((char*)&tmp, sizeof(int));
-               // Read next value
+               //Read next value
                ifile >> tmp;
           }
           ofile.close();
@@ -37,17 +38,20 @@ void createBinaryFile(const std::string& input)
 
 void createAnsiFile(const std::string& input)
 {
-     // Open file
+     //Open file
      std::string output = input;
-	output.resize(output.size()-4); // remove the .bin
+	output.resize(output.size()-4); //remove the .bin
 
      std::ofstream ofile(output.c_str(), std::ios::binary);
      std::ifstream ifile(input.c_str(), std::ios::binary);
 
+	//If file is open
      if(ifile) {
+		//Go to the beginning of the file
           ifile.seekg(0, std::ios::beg);
           int tmp;
           while(ifile.read((char*)&tmp, sizeof(int))) {
+			//Write each value follow by a space
                ofile << tmp << " ";
           }
           ofile.close();
