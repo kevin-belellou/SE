@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 {
      std::string input;
      std::string output;
-     // Check argument
+     // Check arguments
      if(argc == 2) {
           input = output = argv[1];
      } else {
@@ -74,14 +74,13 @@ int main(int argc, char** argv)
      // Convert the plain text
      createBinaryFile(argv[1]);
 
-     // Create filename
+     // Create filenames
      output += "_sorted.bin";
      input += "_random.bin";
 
-     // Open file
+     // Open files
      std::ofstream ofile(output.c_str(), std::ios::binary);
      std::ifstream ifile(input.c_str(), std::ios::binary);
-
 
      unsigned int min = 0, max = 0;
      // Read
@@ -121,7 +120,7 @@ int callFork(unsigned int min, unsigned int max, std::ifstream& readedFile)
 {
      pid_t pid_courant = getpid();
      pid_t pid_pere;
-     printf("I'm the first process number %d\n", pid_courant);
+     printf("I'm the first process, number %d\n", pid_courant);
 
      int nbFils = 0;
      unsigned int minFils, maxFils;
