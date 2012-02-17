@@ -88,25 +88,35 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           bool leftEnd = false;
           bool rightEnd = false;
 
-          int pos = 0;
-
           int n1, n2;
           left.read((char*)&n1, sizeof(int));
           right.read((char*)&n2, sizeof(int));
+
           while(!leftEnd && !rightEnd) {
                if(n1 <= n2) {
                     own.write((char*)&n1, sizeof(int));
-                    own.write((char*)&n2, sizeof(int));
+                    left.read((char*)&n1, sizeof(int));
                } else {
                     own.write((char*)&n2, sizeof(int));
-                    own.write((char*)&n1, sizeof(int));
+                    right.read((char*)&n2, sizeof(int));
                }
 
-               left.read((char*)&n1, sizeof(int));
-               right.read((char*)&n2, sizeof(int));
+               //Fortunatelly we are not as sadic as this ;D
+               //own.write((char*) (n1 <= n2 ? &n1 : &n2), sizeof(int));
+               //(n1 <= n2 ? left : right).write((char*)(n1 <= n2 ? &n1 : &n2), sizeof(int));
 
                leftEnd = left.eof();
                rightEnd = right.eof();
+          }
+
+          if(!(leftEnd && rightEnd)) {
+               int n;
+               own.write((char*)(leftEnd ? &n2 : &n1), sizeof(int));
+               (leftEnd ? right : left).read((char*)&n, sizeof(int));
+               while(!(leftEnd ? right : left).eof()) {
+                    own.write((char*)&n, sizeof(int));
+                    (leftEnd ? right : left).read((char*)&n, sizeof(int));
+               }
           }
 
           own.close();

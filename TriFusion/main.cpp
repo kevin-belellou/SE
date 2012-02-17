@@ -59,7 +59,6 @@ int main(int argc, char** argv)
           i.close();
           o.close();
           std::remove(name.str().c_str());
-          std::cout << output << std::endl;
           createAnsiFile(output);
      }
      return 0;
