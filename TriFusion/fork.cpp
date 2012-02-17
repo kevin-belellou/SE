@@ -92,7 +92,9 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           left.read((char*)&n1, sizeof(int));
           right.read((char*)&n2, sizeof(int));
 
+          //
           while(!leftEnd && !rightEnd) {
+               std::cout << "Comparing: " << n1 << " " << n2 << std::endl;
                if(n1 <= n2) {
                     own.write((char*)&n1, sizeof(int));
                     left.read((char*)&n1, sizeof(int));
@@ -109,11 +111,14 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                rightEnd = right.eof();
           }
 
+          //Write end of list
           if(!(leftEnd && rightEnd)) {
                int n;
                own.write((char*)(leftEnd ? &n2 : &n1), sizeof(int));
+               std::cout << "Writing end of list:\n  > " << (leftEnd ? n2 : n1) << std::endl;
                (leftEnd ? right : left).read((char*)&n, sizeof(int));
                while(!(leftEnd ? right : left).eof()) {
+                    std::cout << "  > " << n << std::endl;
                     own.write((char*)&n, sizeof(int));
                     (leftEnd ? right : left).read((char*)&n, sizeof(int));
                }
@@ -123,6 +128,7 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           left.close();
           right.close();
 
+          //Use standard library to remove file
           std::remove(fileName[1].str().c_str());
           std::remove(fileName[2].str().c_str());
      }
