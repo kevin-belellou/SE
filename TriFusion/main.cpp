@@ -173,8 +173,8 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           //printf("%d : Wait end\n", pid_courant);
 
           // Sorting
-          std::ifstream readedFile(input.c_str(), std::ios::binary); // Open file_random.bin
-          std::ofstream writedFile(output.c_str(), std::ios::binary); // Open file_sorted.bin
+          std::ifstream readedFile(output.c_str(), std::ios::binary); // Open file_random.bin
+          std::ofstream writedFile(output.c_str(), std::ios::binary | std::ios::app); // Open file_sorted.bin
 
           //int tmp;
           printf("\n\n\n%d interval %d - %d\n", pid_courant, min, max);
@@ -191,8 +191,8 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           unsigned int i1, i2;
           i1 = min;
           i2 = ((min + max) / 2) + 1;
-          int nb1, nb2/*, pos*/;
-          //pos = 0;
+          int nb1, nb2, pos;
+          pos = 0;
 
           while (i1 <= (min + max) / 2 && i2 <= max) {
                // Read the 1st number of the 1st list
@@ -204,18 +204,19 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                readedFile.read((char*)&nb2, sizeof(int));
                
                // 
-               //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
+               writedFile.seekp((min + pos) * sizeof(int), std::ios::beg);
 
-               if (nb1 <= nb2) {
-                    printf("%d <= %d\n", nb1, nb2);
+               int posFile = writedFile.tellp();
+               if (nb1 <= nb2) {  
+                    printf("%d <= %d (%d)\n", nb1, nb2, posFile);
                     writedFile.write((char*)&nb1, sizeof(int));
                     i1++;               
                } else {
-                    printf("%d > %d\n", nb1, nb2);
+                    printf("%d > %d (%d)\n", nb1, nb2, posFile);
                     writedFile.write((char*)&nb2, sizeof(int));
                     i2++;
                }
-               //pos++;
+               pos++;
           }
 
           if (i1 > (min + max) / 2) {
@@ -224,10 +225,10 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                     readedFile.read((char*)&nb2, sizeof(int));
                     printf("j'ecris %d\n", nb2);
 
-                    //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
+                    writedFile.seekp((min + pos) * sizeof(int), std::ios::beg);
                     writedFile.write((char*)&nb2, sizeof(int));
 
-                    //pos++;
+                    pos++;
                }
           } else {
                for (i1 = i1; i1 <= (min + max) / 2; i1++) {
@@ -235,10 +236,10 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                     readedFile.read((char*)&nb1, sizeof(int));
 
                     printf("j'ecris %d\n", nb1);
-                    //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
+                    writedFile.seekp((min + pos) * sizeof(int), std::ios::beg);
                     writedFile.write((char*)&nb1, sizeof(int));
 
-                    //pos++;
+                    pos++;
                }
           }
 
