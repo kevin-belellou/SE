@@ -1,3 +1,4 @@
+#include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <unistd.h>
@@ -59,11 +60,12 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           //printf("%d : Wait end\n", pid_courant);
 
           // Sorting
-          std::ifstream readedFile(output.c_str(), std::ios::binary); // Open file_random.bin
-          std::ofstream writedFile(output.c_str(), std::ios::binary | std::ios::app); // Open file_sorted.bin
+          //std::ifstream readedFile(output.c_str(), std::ios::binary); // Open file_random.bin
+          //std::ofstream writedFile(output.c_str(), std::ios::binary | std::ios::app); // Open file_sorted.bin
+          std::fstream fichier(output.c_str(), std::ios_base::binary | std::ios_base::in | std::ios_base::out);
 
           //int tmp;
-          printf("\n\n\n%d interval %d - %d\n", pid_courant, min, max);
+          printf("\n%d interval %d - %d\n", pid_courant, min, max);
           //printf("1st son's interval\n");
           //for (unsigned int k = min * sizeof(int); k <= max * sizeof(int); k += sizeof(int))
           //{
@@ -74,63 +76,86 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                //printf("----------> %d\n", tmp);
           //}
 
-          unsigned int i1, i2;
-          i1 = min;
-          i2 = ((min + max) / 2) + 1;
-          int nb1, nb2, pos;
-          pos = 0;
+          unsigned int leftInterval = min;
+          unsigned int rightInterval = ((min + max) / 2) + 1;
+          int nb1, nb2;
+          int pos = 0;
 
-          while (i1 <= (min + max) / 2 && i2 <= max) {
+          int initPosLeft;
+          int initPosRight;
+          int buffer;
+
+          while (leftInterval <= (min + max) / 2 && rightInterval <= max) {
                // Read the 1st number of the 1st list
-               readedFile.seekg(i1 * sizeof(int), std::ios::beg);
-               readedFile.read((char*)&nb1, sizeof(int));
+               initPosLeft = leftInterval * sizeof(int);
+               fichier.seekg(initPosLeft, std::ios::beg);
+               fichier.read((char*)&nb1, sizeof(int));
 
                // Read the 1st number of the 2nd list
-               readedFile.seekg(i2 * sizeof(int), std::ios::beg);
-               readedFile.read((char*)&nb2, sizeof(int));
+               initPosRight = rightInterval * sizeof(int);
+               fichier.seekg(initPosRight, std::ios::beg);
+               fichier.read((char*)&nb2, sizeof(int));
+
                
                // 
-               writedFile.seekp((min + pos) * sizeof(int), std::ios::beg);
+               //fichier.seekp((min + pos) * sizeof(int), std::ios::beg);
 
-               int posFile = writedFile.tellp();
+               int posFile = fichier.tellp();
                if (nb1 <= nb2) {  
+/*
                     printf("%d <= %d (%d)\n", nb1, nb2, posFile);
-                    writedFile.write((char*)&nb1, sizeof(int));
-                    i1++;               
+                    fichier.seekg(initPosRight, std::ios::beg);                    
+                    fichier.write((char*)&nb1, sizeof(int));
+                    fichier.flush();
+*/
+                    leftInterval++;               
                } else {
                     printf("%d > %d (%d)\n", nb1, nb2, posFile);
-                    writedFile.write((char*)&nb2, sizeof(int));
-                    i2++;
+                    buffer = nb1;
+                    
+                    fichier.seekp(initPosLeft, std::ios::beg);    
+                    fichier.write((char*)&nb2, sizeof(int));
+                    fichier.flush();
+
+                    fichier.seekp(initPosRight, std::ios::beg);    
+                    fichier.write((char*)&buffer, sizeof(int));
+                    fichier.flush();
+                    rightInterval++;
                }
                pos++;
           }
+/*
+          std::cout << "Condition: " << leftInterval << " " << (min+max)/2 << std::endl;
+          if (leftInterval > (min + max) / 2) {
+               for (int i = rightInterval; rightInterval <= max; rightInterval++) {
+                    fichier.seekg(i * sizeof(int), std::ios::beg);
+                    fichier.read((char*)&nb2, sizeof(int));
+                    printf("(1) j'ecris %d\n", nb2);
 
-          if (i1 > (min + max) / 2) {
-               for (i2 = i2; i2 <= max; i2++) {
-                    readedFile.seekg(i2 * sizeof(int), std::ios::beg);
-                    readedFile.read((char*)&nb2, sizeof(int));
-                    printf("j'ecris %d\n", nb2);
-
-                    writedFile.seekp((min + pos) * sizeof(int), std::ios::beg);
-                    writedFile.write((char*)&nb2, sizeof(int));
+                    fichier.seekp((min + pos) * sizeof(int), std::ios::beg);
+                    fichier.write((char*)&nb2, sizeof(int));
+                    fichier.flush();
 
                     pos++;
                }
           } else {
-               for (i1 = i1; i1 <= (min + max) / 2; i1++) {
-                    readedFile.seekg(i1 * sizeof(int), std::ios::beg);
-                    readedFile.read((char*)&nb1, sizeof(int));
+               std::cout << leftInterval << std::endl;
+               for (int i = leftInterval; leftInterval <= (min + max) / 2; leftInterval++) {
+                    fichier.seekg(i * sizeof(int), std::ios::beg);
+                    fichier.read((char*)&nb1, sizeof(int));
 
-                    printf("j'ecris %d\n", nb1);
-                    writedFile.seekp((min + pos) * sizeof(int), std::ios::beg);
-                    writedFile.write((char*)&nb1, sizeof(int));
+                    printf("(2) j'ecris %d\n", nb1);
+                    fichier.seekp((min + pos) * sizeof(int), std::ios::beg);
+                    fichier.write((char*)&nb1, sizeof(int));
+                    fichier.flush();
 
                     pos++;
                }
           }
+//*/
 
-          readedFile.close();
-          writedFile.close();
+          fichier.close();
+          fichier.close();
      }
      return 0;
 }
