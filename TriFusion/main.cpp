@@ -159,7 +159,7 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           }
      }
 
-     // If I'm the father
+     // If I'm a father
      if (pid_pere == pid_courant) {
           //printf("%d : Waiting\n", pid_courant);
 
@@ -176,23 +176,23 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           std::ifstream readedFile(input.c_str(), std::ios::binary); // Open file_random.bin
           std::ofstream writedFile(output.c_str(), std::ios::binary); // Open file_sorted.bin
 
-          int tmp;
-          //printf("\n\n\n%d interval %d - %d\n", pid_courant, min, max);
+          //int tmp;
+          printf("\n\n\n%d interval %d - %d\n", pid_courant, min, max);
           //printf("1st son's interval\n");
-          for (unsigned int k = min * sizeof(int); k <= max * sizeof(int); k += sizeof(int))
-          {
+          //for (unsigned int k = min * sizeof(int); k <= max * sizeof(int); k += sizeof(int))
+          //{
                //if (k == (((min + max) / 2) + 1) * sizeof(int))
                     //printf("2nd son's interval\n");
-               readedFile.seekg(k, std::ios::beg);
-               readedFile.read((char*)&tmp, sizeof(int));
+               //readedFile.seekg(k, std::ios::beg);
+               //readedFile.read((char*)&tmp, sizeof(int));
                //printf("----------> %d\n", tmp);
-          }
+          //}
 
           unsigned int i1, i2;
           i1 = min;
           i2 = ((min + max) / 2) + 1;
-          int nb1, nb2, pos;
-          pos = 0;
+          int nb1, nb2/*, pos*/;
+          //pos = 0;
 
           while (i1 <= (min + max) / 2 && i2 <= max) {
                // Read the 1st number of the 1st list
@@ -215,28 +215,30 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                     writedFile.write((char*)&nb2, sizeof(int));
                     i2++;
                }
-               pos++;
+               //pos++;
           }
 
           if (i1 > (min + max) / 2) {
                for (i2 = i2; i2 <= max; i2++) {
                     readedFile.seekg(i2 * sizeof(int), std::ios::beg);
                     readedFile.read((char*)&nb2, sizeof(int));
+                    printf("j'ecris %d\n", nb2);
 
                     //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
                     writedFile.write((char*)&nb2, sizeof(int));
 
-                    pos++;
+                    //pos++;
                }
           } else {
                for (i1 = i1; i1 <= (min + max) / 2; i1++) {
                     readedFile.seekg(i1 * sizeof(int), std::ios::beg);
                     readedFile.read((char*)&nb1, sizeof(int));
 
+                    printf("j'ecris %d\n", nb1);
                     //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
                     writedFile.write((char*)&nb1, sizeof(int));
 
-                    pos++;
+                    //pos++;
                }
           }
 
