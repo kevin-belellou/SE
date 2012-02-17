@@ -1,9 +1,12 @@
+#include <sstream>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+void createAnsiFile(const std::string& input);
 
 int callFork(unsigned int min, unsigned int max, const std::string& input, const std::string& output)
 {
@@ -34,7 +37,20 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                     pid_courant = getpid();
                     min = minFils;
                     max = maxFils;
-		          nbFils = 0;
+                    nbFils = 0;
+
+                    //Write the value of his interval to a temp file
+                    if(min >= max) {
+                         std::ifstream f(input.c_str());
+                         std::stringstream name;
+                         name << getpid();
+                         std::ofstream o(name.str().c_str());
+                         int value;
+                         f.seekg(min * sizeof(int));
+                         f.read((char*)&value, sizeof(int));
+                         o.write((char*)&value, sizeof(int));
+                         o.close();
+                    }
                     //printf("%d Created %d (%d/2); Interval : %d - %d\n", pid_pere, pid_courant, i, min, max);
                     break;
                default: // Father's code
@@ -51,111 +67,54 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           //printf("%d : Waiting\n", pid_courant);
 
           // Wait until sons finished
-          pid_t process;
-          for (int j = 1; j <= 2; j++) {
-               process = wait(NULL);
-               //printf("%d : %d ended (%d/2)\n", pid_courant, process, j);
+          pid_t process[2];
+          for (int j = 0; j < 2; j++) {
+               process[j] = wait(NULL);
           }
 
-          //printf("%d : Wait end\n", pid_courant);
+          //Convert pid integer value into string (the purpose is to open file ;))
+          std::stringstream fileName[3];
+          fileName[0] << getpid();
+          std::ofstream own(fileName[0].str().c_str());
 
-          // Sorting
-          //std::ifstream readedFile(output.c_str(), std::ios::binary); // Open file_random.bin
-          //std::ofstream writedFile(output.c_str(), std::ios::binary | std::ios::app); // Open file_sorted.bin
-          std::fstream fichier(output.c_str(), std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+          fileName[1] << process[0];
+          std::ifstream left(fileName[1].str().c_str());
+
+          fileName[2] << process[1];
+          std::ifstream right(fileName[2].str().c_str());
 
           //int tmp;
-          printf("\n%d interval %d - %d\n", pid_courant, min, max);
-          //printf("1st son's interval\n");
-          //for (unsigned int k = min * sizeof(int); k <= max * sizeof(int); k += sizeof(int))
-          //{
-               //if (k == (((min + max) / 2) + 1) * sizeof(int))
-                    //printf("2nd son's interval\n");
-               //readedFile.seekg(k, std::ios::beg);
-               //readedFile.read((char*)&tmp, sizeof(int));
-               //printf("----------> %d\n", tmp);
-          //}
+          std::cout << pid_courant << ", Interval: [" << min <<  "," << max << "]" << std::endl;
+          bool leftEnd = false;
+          bool rightEnd = false;
 
-          unsigned int leftInterval = min;
-          unsigned int rightInterval = ((min + max) / 2) + 1;
-          int nb1, nb2;
           int pos = 0;
 
-          int initPosLeft;
-          int initPosRight;
-          int buffer;
-
-          while (leftInterval <= (min + max) / 2 && rightInterval <= max) {
-               // Read the 1st number of the 1st list
-               initPosLeft = leftInterval * sizeof(int);
-               fichier.seekg(initPosLeft, std::ios::beg);
-               fichier.read((char*)&nb1, sizeof(int));
-
-               // Read the 1st number of the 2nd list
-               initPosRight = rightInterval * sizeof(int);
-               fichier.seekg(initPosRight, std::ios::beg);
-               fichier.read((char*)&nb2, sizeof(int));
-
-               
-               // 
-               //fichier.seekp((min + pos) * sizeof(int), std::ios::beg);
-
-               int posFile = fichier.tellp();
-               if (nb1 <= nb2) {  
-/*
-                    printf("%d <= %d (%d)\n", nb1, nb2, posFile);
-                    fichier.seekg(initPosRight, std::ios::beg);                    
-                    fichier.write((char*)&nb1, sizeof(int));
-                    fichier.flush();
-*/
-                    leftInterval++;               
+          int n1, n2;
+          left.read((char*)&n1, sizeof(int));
+          right.read((char*)&n2, sizeof(int));
+          while(!leftEnd && !rightEnd) {
+               if(n1 <= n2) {
+                    own.write((char*)&n1, sizeof(int));
+                    own.write((char*)&n2, sizeof(int));
                } else {
-                    printf("%d > %d (%d)\n", nb1, nb2, posFile);
-                    buffer = nb1;
-                    
-                    fichier.seekp(initPosLeft, std::ios::beg);    
-                    fichier.write((char*)&nb2, sizeof(int));
-                    fichier.flush();
-
-                    fichier.seekp(initPosRight, std::ios::beg);    
-                    fichier.write((char*)&buffer, sizeof(int));
-                    fichier.flush();
-                    rightInterval++;
+                    own.write((char*)&n2, sizeof(int));
+                    own.write((char*)&n1, sizeof(int));
                }
-               pos++;
+
+               left.read((char*)&n1, sizeof(int));
+               right.read((char*)&n2, sizeof(int));
+
+               leftEnd = left.eof();
+               rightEnd = right.eof();
           }
-/*
-          std::cout << "Condition: " << leftInterval << " " << (min+max)/2 << std::endl;
-          if (leftInterval > (min + max) / 2) {
-               for (int i = rightInterval; rightInterval <= max; rightInterval++) {
-                    fichier.seekg(i * sizeof(int), std::ios::beg);
-                    fichier.read((char*)&nb2, sizeof(int));
-                    printf("(1) j'ecris %d\n", nb2);
 
-                    fichier.seekp((min + pos) * sizeof(int), std::ios::beg);
-                    fichier.write((char*)&nb2, sizeof(int));
-                    fichier.flush();
+          own.close();
+          left.close();
+          right.close();
 
-                    pos++;
-               }
-          } else {
-               std::cout << leftInterval << std::endl;
-               for (int i = leftInterval; leftInterval <= (min + max) / 2; leftInterval++) {
-                    fichier.seekg(i * sizeof(int), std::ios::beg);
-                    fichier.read((char*)&nb1, sizeof(int));
-
-                    printf("(2) j'ecris %d\n", nb1);
-                    fichier.seekp((min + pos) * sizeof(int), std::ios::beg);
-                    fichier.write((char*)&nb1, sizeof(int));
-                    fichier.flush();
-
-                    pos++;
-               }
-          }
-//*/
-
-          fichier.close();
-          fichier.close();
+          std::remove(fileName[1].str().c_str());
+          std::remove(fileName[2].str().c_str());
      }
      return 0;
 }

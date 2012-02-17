@@ -1,3 +1,4 @@
+#include <sstream>
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -26,7 +27,6 @@ int main(int argc, char** argv)
      input += "_random.bin";
 
      // Open files
-     std::ofstream ofile(output.c_str(), std::ios::binary);
      std::ifstream ifile(input.c_str(), std::ios::binary);
 
      unsigned int min = 0, max = 0;
@@ -35,31 +35,31 @@ int main(int argc, char** argv)
           // Go to the end, tell us the size
           ifile.seekg(0, std::ios_base::end);
           max = (ifile.tellg() / sizeof(int)) - 1;
-          // And return at the beginning of the file
-          ifile.seekg(0, std::ios::beg);
-          int tmp;
-          //std::cout << "The " << max + 1 << " values are: " << std::endl;
-          while(ifile.read((char*)&tmp, sizeof(int))) {
-               ofile.write((char*)&tmp, sizeof(int));
-          }
-          ofile.close();
           ifile.close();
      }
 
      pid_t originalPID = getpid();
 
      // First part of the merging sort
-     //std::ifstream readedFile(input.c_str());
      callFork(min, max, input, output);
 
      // Now only close buffer and all if I'm the original one
      if(originalPID == getpid()) {
-          //readedFile.close();
+          //Copy the last tmp file into the good one
+          std::ofstream o(output.c_str());
 
-          //ofile.close();
-          //ifile.close();
-
-          // So now, file is now sorted and writted in _sorted.bin
+          std::stringstream name;
+          name << originalPID;
+          std::ifstream i(name.str().c_str());
+          int tmp;
+          while(i.read((char*)&tmp, sizeof(int))) {
+               o.write((char*)&tmp, sizeof(int));
+          }
+          // So now, values are now sorted and writted in _sorted.bin
+          i.close();
+          o.close();
+          std::remove(name.str().c_str());
+          std::cout << output << std::endl;
           createAnsiFile(output);
      }
      return 0;
