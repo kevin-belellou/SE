@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int callFork(unsigned int min, unsigned int max, std::ifstream&);
+int callFork(unsigned int min, unsigned int max, const std::string& input, const std::string& output);
 
 void createBinaryFile(const std::string& input)
 {
@@ -91,24 +91,26 @@ int main(int argc, char** argv)
           // And return at the beginning of the file
           ifile.seekg(0, std::ios::beg);
           int tmp;
-          std::cout << "The " << max + 1 << " values are: " << std::endl;
+          //std::cout << "The " << max + 1 << " values are: " << std::endl;
           while(ifile.read((char*)&tmp, sizeof(int))) {
                ofile.write((char*)&tmp, sizeof(int));
           }
+          ofile.close();
+          ifile.close();
      }
 
      pid_t originalPID = getpid();
 
      // First part of the merging sort
-     std::ifstream readedFile(input.c_str());
-     callFork(min, max, readedFile);
+     //std::ifstream readedFile(input.c_str());
+     callFork(min, max, input, output);
 
      // Now only close buffer and all if I'm the original one
      if(originalPID == getpid()) {
-          readedFile.close();
+          //readedFile.close();
 
-          ofile.close();
-          ifile.close();
+          //ofile.close();
+          //ifile.close();
 
           // So now, file is now sorted and writted in _sorted.bin
           createAnsiFile(output);
@@ -116,11 +118,11 @@ int main(int argc, char** argv)
      return 0;
 }
 
-int callFork(unsigned int min, unsigned int max, std::ifstream& readedFile)
+int callFork(unsigned int min, unsigned int max, const std::string& input, const std::string& output)
 {
      pid_t pid_courant = getpid();
      pid_t pid_pere;
-     printf("I'm the first process, number %d\n", pid_courant);
+     //printf("I'm the first process, number %d\n", pid_courant);
 
      int nbFils = 0;
      unsigned int minFils, maxFils;
@@ -146,7 +148,7 @@ int callFork(unsigned int min, unsigned int max, std::ifstream& readedFile)
                     min = minFils;
                     max = maxFils;
 		          nbFils = 0;
-                    printf("%d Created %d (%d/2); Interval : %d - %d\n", pid_pere, pid_courant, i, min, max);
+                    //printf("%d Created %d (%d/2); Interval : %d - %d\n", pid_pere, pid_courant, i, min, max);
                     break;
                default: // Father's code
                     nbFils++;
@@ -159,30 +161,87 @@ int callFork(unsigned int min, unsigned int max, std::ifstream& readedFile)
 
      // If I'm the father
      if (pid_pere == pid_courant) {
-          printf("%d : Waiting\n", pid_courant);
+          //printf("%d : Waiting\n", pid_courant);
 
           // Wait until sons finished
           pid_t process;
           for (int j = 1; j <= 2; j++) {
                process = wait(NULL);
-               printf("%d : %d ended (%d/2)\n", pid_courant, process, j);
+               //printf("%d : %d ended (%d/2)\n", pid_courant, process, j);
           }
 
-          printf("%d : Wait end\n", pid_courant);
+          //printf("%d : Wait end\n", pid_courant);
 
           // Sorting
+          std::ifstream readedFile(input.c_str(), std::ios::binary); // Open file_random.bin
+          std::ofstream writedFile(output.c_str(), std::ios::binary); // Open file_sorted.bin
+
           int tmp;
-          printf("\n\n\n%d interval %d - %d\n", pid_courant, min, max);
-          printf("1st son's interval\n");
+          //printf("\n\n\n%d interval %d - %d\n", pid_courant, min, max);
+          //printf("1st son's interval\n");
           for (unsigned int k = min * sizeof(int); k <= max * sizeof(int); k += sizeof(int))
           {
-               if (k == (((min + max) / 2) + 1) * sizeof(int))
-                    printf("2nd son's interval\n");
+               //if (k == (((min + max) / 2) + 1) * sizeof(int))
+                    //printf("2nd son's interval\n");
                readedFile.seekg(k, std::ios::beg);
                readedFile.read((char*)&tmp, sizeof(int));
-               printf("----------> %d\n", tmp);
+               //printf("----------> %d\n", tmp);
           }
-     }
 
+          unsigned int i1, i2;
+          i1 = min;
+          i2 = ((min + max) / 2) + 1;
+          int nb1, nb2, pos;
+          pos = 0;
+
+          while (i1 <= (min + max) / 2 && i2 <= max) {
+               // Read the 1st number of the 1st list
+               readedFile.seekg(i1 * sizeof(int), std::ios::beg);
+               readedFile.read((char*)&nb1, sizeof(int));
+
+               // Read the 1st number of the 2nd list
+               readedFile.seekg(i2 * sizeof(int), std::ios::beg);
+               readedFile.read((char*)&nb2, sizeof(int));
+               
+               // 
+               //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
+
+               if (nb1 <= nb2) {
+                    printf("%d <= %d\n", nb1, nb2);
+                    writedFile.write((char*)&nb1, sizeof(int));
+                    i1++;               
+               } else {
+                    printf("%d > %d\n", nb1, nb2);
+                    writedFile.write((char*)&nb2, sizeof(int));
+                    i2++;
+               }
+               pos++;
+          }
+
+          if (i1 > (min + max) / 2) {
+               for (i2 = i2; i2 <= max; i2++) {
+                    readedFile.seekg(i2 * sizeof(int), std::ios::beg);
+                    readedFile.read((char*)&nb2, sizeof(int));
+
+                    //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
+                    writedFile.write((char*)&nb2, sizeof(int));
+
+                    pos++;
+               }
+          } else {
+               for (i1 = i1; i1 <= (min + max) / 2; i1++) {
+                    readedFile.seekg(i1 * sizeof(int), std::ios::beg);
+                    readedFile.read((char*)&nb1, sizeof(int));
+
+                    //writedFile.seekg((min + pos) * sizeof(int), std::ios::beg);
+                    writedFile.write((char*)&nb1, sizeof(int));
+
+                    pos++;
+               }
+          }
+
+          readedFile.close();
+          writedFile.close();
+     }
      return 0;
 }
