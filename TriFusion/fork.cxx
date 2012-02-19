@@ -12,7 +12,6 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
 {
      pid_t pid_courant = getpid();
      pid_t pid_pere;
-     //printf("I'm the first process, number %d\n", pid_courant);
 
      int nbFils = 0;
      unsigned int minFils, maxFils;
@@ -39,7 +38,7 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                     max = maxFils;
                     nbFils = 0;
 
-                    //Write the value of his interval to a temp file
+                    // Write the value of his interval to a temp file
                     if(min >= max) {
                          std::ifstream f(input.c_str());
                          std::stringstream name;
@@ -51,7 +50,6 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                          o.write((char*)&value, sizeof(int));
                          o.close();
                     }
-                    //printf("%d Created %d (%d/2); Interval : %d - %d\n", pid_pere, pid_courant, i, min, max);
                     break;
                default: // Father's code
                     nbFils++;
@@ -64,15 +62,13 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
 
      // If I'm a father
      if (pid_pere == pid_courant) {
-          //printf("%d : Waiting\n", pid_courant);
-
           // Wait until sons finished
           pid_t process[2];
           for (int j = 0; j < 2; j++) {
                process[j] = wait(NULL);
           }
 
-          //Convert pid integer value into string (the purpose is to open file ;))
+          // Convert pid integer value into string (the purpose is to open file)
           std::stringstream fileName[3];
           fileName[0] << getpid();
           std::ofstream own(fileName[0].str().c_str());
@@ -83,8 +79,6 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           fileName[2] << process[1];
           std::ifstream right(fileName[2].str().c_str());
 
-          //int tmp;
-          std::cout << pid_courant << ", Interval: [" << min <<  "," << max << "]" << std::endl;
           bool leftEnd = false;
           bool rightEnd = false;
 
@@ -92,9 +86,8 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
           left.read((char*)&n1, sizeof(int));
           right.read((char*)&n2, sizeof(int));
 
-          //
+          // Comparing the 2 values while one of the list is not empty
           while(!leftEnd && !rightEnd) {
-               std::cout << "Comparing: " << n1 << " " << n2 << std::endl;
                if(n1 <= n2) {
                     own.write((char*)&n1, sizeof(int));
                     left.read((char*)&n1, sizeof(int));
@@ -102,35 +95,32 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
                     own.write((char*)&n2, sizeof(int));
                     right.read((char*)&n2, sizeof(int));
                }
-
-               //Fortunatelly we are not as sadic as this ;D
-               //own.write((char*) (n1 <= n2 ? &n1 : &n2), sizeof(int));
-               //(n1 <= n2 ? left : right).write((char*)(n1 <= n2 ? &n1 : &n2), sizeof(int));
-
                leftEnd = left.eof();
                rightEnd = right.eof();
           }
 
-          //Write end of list
+          // Write end of no empty list
           if(!(leftEnd && rightEnd)) {
                int n;
+
                own.write((char*)(leftEnd ? &n2 : &n1), sizeof(int));
-               std::cout << "Writing end of list:\n  > " << (leftEnd ? n2 : n1) << std::endl;
                (leftEnd ? right : left).read((char*)&n, sizeof(int));
+
                while(!(leftEnd ? right : left).eof()) {
-                    std::cout << "  > " << n << std::endl;
                     own.write((char*)&n, sizeof(int));
                     (leftEnd ? right : left).read((char*)&n, sizeof(int));
                }
           }
 
+          // Closing the files
           own.close();
           left.close();
           right.close();
 
-          //Use standard library to remove file
+          // Use standard library to remove files
           std::remove(fileName[1].str().c_str());
           std::remove(fileName[2].str().c_str());
      }
      return 0;
 }
+

@@ -12,6 +12,7 @@ int main(int argc, char** argv)
 {
      std::string input;
      std::string output;
+
      // Check arguments
      if(argc == 2) {
           input = output = argv[1];
@@ -19,8 +20,11 @@ int main(int argc, char** argv)
           std::cerr << "Wrong number of argument" << std::endl;
           return -1;
      }
+
+     std::cout << "Creating the binary random file" << std::endl;
      // Convert the plain text
      createBinaryFile(argv[1]);
+     std::cout << "File created" << std::endl;
 
      // Create filenames
      output += "_sorted.bin";
@@ -40,28 +44,33 @@ int main(int argc, char** argv)
 
      pid_t originalPID = getpid();
 
+     std::cout << std::endl << "Sorting..." << std::endl << std::endl;
      // First part of the merging sort
      callFork(min, max, input, output);
 
      // Now only close buffer and all if I'm the original one
      if(originalPID == getpid()) {
-          //Copy the last tmp file into the good one
+          // Copy the last tmp file into the good one
           std::ofstream o(output.c_str());
 
           std::stringstream name;
           name << originalPID;
           std::ifstream i(name.str().c_str());
           int tmp;
+
           while(i.read((char*)&tmp, sizeof(int))) {
                o.write((char*)&tmp, sizeof(int));
           }
+
           // So now, values are now sorted and writted in _sorted.bin
           i.close();
           o.close();
           std::remove(name.str().c_str());
+
+          std::cout << "File sorted, creating the sorted binary and text files" << std::endl;
           createAnsiFile(output);
+          std::cout << "Files created" << std::endl;
      }
      return 0;
 }
-
 
