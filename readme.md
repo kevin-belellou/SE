@@ -6,3 +6,4 @@ Dirig&eacute; par Louis Schnellbach et K&eacute;vin B&eacute;lellou
 ## 1er projet : TriFusion ##
 
 Cr&eacute;ation d'un programme de tri utilisant l'algorithme de tri fusion multi-processus hors m&eacute;moire  
+Langage : C++  
