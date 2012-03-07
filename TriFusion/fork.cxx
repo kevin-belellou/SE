@@ -123,4 +123,3 @@ int callFork(unsigned int min, unsigned int max, const std::string& input, const
      }
      return 0;
 }
-
